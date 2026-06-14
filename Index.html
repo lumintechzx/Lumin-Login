@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FoxyzMobile - Login</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: #0d0e12;
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Fundo com efeito Gaming Glow */
+        body::before {
+            content: '';
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            background: #ff4a4a;
+            border-radius: 50%;
+            filter: blur(150px);
+            top: 20%;
+            left: 20%;
+            z-index: 1;
+        }
+
+        body::after {
+            content: '';
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            background: #ff9900;
+            border-radius: 50%;
+            filter: blur(150px);
+            bottom: 20%;
+            right: 20%;
+            z-index: 1;
+        }
+
+        .login-container {
+            background: rgba(20, 22, 28, 0.85);
+            padding: 40px;
+            border-radius: 16px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(10px);
+            z-index: 10;
+            text-align: center;
+        }
+
+        h2 {
+            font-size: 28px;
+            margin-bottom: 8px;
+            color: #fff;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        h2 span {
+            color: #ff4a4a;
+        }
+
+        p.subtitle {
+            color: #717684;
+            font-size: 14px;
+            margin-bottom: 30px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .input-group label {
+            display: block;
+            color: #a0a5b5;
+            font-size: 12px;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 14px;
+            background: #181b23;
+            border: 1px solid #2c313f;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #ff4a4a;
+            box-shadow: 0 0 10px rgba(255, 74, 74, 0.2);
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(90deg, #ff4a4a, #ff764a);
+            border: none;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            margin-top: 10px;
+        }
+
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 74, 74, 0.4);
+        }
+
+        .btn-login:active {
+            transform: translateY(0);
+        }
+
+        /* Área de alertas de erro/sucesso */
+        #message-box {
+            margin-top: 20px;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .error-msg {
+            background: rgba(255, 74, 74, 0.15);
+            border: 1px solid #ff4a4a;
+            color: #ff6b6b;
+        }
+
+        .success-msg {
+            background: rgba(46, 213, 115, 0.15);
+            border: 1px solid #2ed573;
+            color: #2ed573;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="login-container">
+        <h2>FOXYZ<span>MOBILE</span></h2>
+        <p class="subtitle">Insira as suas credenciais para entrar no servidor</p>
+
+        <form id="loginForm">
+            <div class="input-group">
+                <label for="jogadorId">ID do Jogador (Firebase UID)</label>
+                <input type="text" id="jogadorId" placeholder="Ex: player_teste_01" required>
+            </div>
+
+            <div class="input-group">
+                <label for="nickname">Nickname (Opcional para novos registros)</label>
+                <input type="text" id="nickname" placeholder="Ex: FoxyPro">
+            </div>
+
+            <button type="submit" class="btn-login" id="btnSubmit">ENTRAR NO SERVIDOR</button>
+        </form>
+
+        <div id="message-box"></div>
+    </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const jogadorId = document.getElementById('jogadorId').value.trim();
+            const nickname = document.getElementById('nickname').value.trim();
+            const messageBox = document.getElementById('message-box');
+            const btnSubmit = document.getElementById('btnSubmit');
+
+            // URL do teu servidor backend Vercel de Login
+            const apiURL = "https://foxyzmobile.vercel.app/login";
+
+            // Reseta a caixa de mensagem e bota efeito de carregando
+            messageBox.style.display = "none";
+            btnSubmit.innerText = "A CONECTAR...";
+            btnSubmit.disabled = true;
+
+            try {
+                const response = await fetch(apiURL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        jogadorId: jogadorId,
+                        nickname: nickname || null
+                    })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || "Erro ao conectar ao servidor.");
+                }
+
+                // Se der certo
+                messageBox.className = "success-msg";
+                if (data.status === "registrado") {
+                    messageBox.innerText = `Sucesso! Novo jogador registrado: ${data.perfil.nickname}`;
+                } else {
+                    messageBox.innerText = `Bem-vindo de volta, ${data.perfil.nickname}!`;
+                }
+                messageBox.style.display = "block";
+
+                console.log("Dados do Player carregados do Firebase:", data);
+
+            } catch (error) {
+                // Se der erro (CORS, servidor offline, campo em falta)
+                messageBox.className = "error-msg";
+                messageBox.innerText = "Erro de Autenticação: " + error.message;
+                messageBox.style.display = "block";
+            } finally {
+                // Restaura o botão
+                btnSubmit.innerText = "ENTRAR NO SERVIDOR";
+                btnSubmit.disabled = false;
+            }
+        });
+    </script>
+
+</body>
+      </html>
+      
