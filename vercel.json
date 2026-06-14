@@ -1,7 +1,7 @@
 {
   "rewrites": [
+    { "source": "/", "destination": "/index.html" },
     { "source": "/login", "destination": "/api/login" },
     { "source": "/inventario/atualizar", "destination": "/api/atualizar-itens" }
   ]
 }
-
